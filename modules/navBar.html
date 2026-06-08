@@ -28,3 +28,39 @@
     </div>
   </div>
 </nav>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const collapseEl = document.getElementById("collapsibleNavbar");
+    const toggler = document.querySelector('.navbar-toggler[data-bs-target="#collapsibleNavbar"]');
+
+    if (!collapseEl || !toggler || typeof bootstrap === "undefined") {
+      return;
+    }
+
+    const collapse = bootstrap.Collapse.getOrCreateInstance(collapseEl, {
+      toggle: false,
+    });
+
+    document.addEventListener("click", (event) => {
+      const isExpanded = collapseEl.classList.contains("show");
+
+      if (!isExpanded) {
+        return;
+      }
+
+      if (collapseEl.contains(event.target) || toggler.contains(event.target)) {
+        return;
+      }
+
+      collapse.hide();
+    });
+
+    collapseEl.querySelectorAll("a.nav-link").forEach((link) => {
+      link.addEventListener("click", () => {
+        if (window.innerWidth < 576) {
+          collapse.hide();
+        }
+      });
+    });
+  });
+</script>
