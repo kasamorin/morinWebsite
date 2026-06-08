@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head>
+        <script src="/js/include.js" defer></script>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <title>About Me</title>
+    </head>
+    <body>
+        <include src="/modules/navBar.html"></include>
+        <div class="container-fluid bg-dark text-white"> <!-- 全宽容器 --> <!-- 深色背景+白色文字 --> <!-- bg-primary是蓝色背景 -->
+            <div class="container p-5"> <!-- pt-5 是顶部填充,p-5是顶部底部都填充,my-5是在容器之上填充 -->
+                <h1>关于</h1>
+                <include src="/modules/hitokoto.html"></include> <!-- 一言 -->
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="container p-5 my-5">
+                <p>此站为<a href="https://space.bilibili.com/1299851560">Morin莫琳</a>的个人网站（博客），采用BootStrap框架。</p>
+                <p>大部分页面使用古法编程，并辅以codex优化</p>
+                <p>剩下不知道怎么写了</p>
+            </div>
+        </div>
+        <include src="/modules/footer.html"></include>
+        <include src="/modules/includeBootstrap.html"></include>    
+    </body>
+</html>
