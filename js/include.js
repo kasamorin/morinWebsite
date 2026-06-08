@@ -1,68 +1,59 @@
-/**
- * include.js
- * 提供一个自定义 <include> 标签，将外部 HTML 文件的内容原地引入。
- *
- * 用法:
- *   <include src="path/to/file.html"></include>
- *
- * 注意:
- *   1. 需要在本地服务器环境下运行（如 Live Server、http-server），
- *      直接双击打开 HTML 文件会因 fetch 跨域限制而失败。
- *   2. 被包含的文件可以继续使用 <include>，支持嵌套。
- *   3. <include> 标签应放在 <body> 内，避免浏览器解析时将其移出 <head>。
- */
+// include.js
 
-(function () {
-  // DOM 加载完成后执行
-  function whenReady(fn) {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', fn);
-    } else {
-      fn();
-    }
-  }
+(async function () {
+  const MAX_DEPTH = 20;
 
-  async function processAll() {
-    // 一直循环直到页面中不再有 <include> 标签
-    let includes = document.querySelectorAll('include');
-    while (includes.length > 0) {
-      for (const el of includes) {
-        await replaceInclude(el);
-      }
-      includes = document.querySelectorAll('include');
-    }
-  }
-
-  async function replaceInclude(el) {
-    const src = el.getAttribute('src');
-    if (!src) {
-      console.warn('<include> 缺少 src 属性', el);
+  async function loadIncludes(root = document, depth = 0) {
+    if (depth > MAX_DEPTH) {
+      console.warn("[include.js] include 嵌套层级过深，已停止处理");
       return;
     }
 
-    try {
-      const response = await fetch(src);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const html = await response.text();
+    const includes = root.querySelectorAll("include[src]");
 
-      // 用 template 安全解析 HTML 字符串
-      const template = document.createElement('template');
-      template.innerHTML = html.trim();
+    for (const el of includes) {
+      const src = el.getAttribute("src");
 
-      const parent = el.parentNode;
-      if (parent) {
-        // 将解析后的所有子节点插入到 <include> 之前
-        while (template.content.firstChild) {
-          parent.insertBefore(template.content.firstChild, el);
+      if (!src) continue;
+
+      try {
+        const res = await fetch(src);
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
         }
-        // 移除 <include> 占位标签
-        parent.removeChild(el);
+
+        const html = await res.text();
+
+        const fragment = document.createDocumentFragment();
+        const temp = document.createElement("template");
+
+        temp.innerHTML = html;
+        fragment.appendChild(temp.content);
+
+        const parent = el.parentNode;
+
+        el.replaceWith(fragment);
+
+        // 继续处理被引入内容里的 include
+        if (parent) {
+          await loadIncludes(parent, depth + 1);
+        }
+      } catch (err) {
+        console.error(`[include.js] 加载失败：${src}`, err);
+
+        el.replaceWith(
+          document.createComment(`include failed: ${src}`)
+        );
       }
-    } catch (err) {
-      console.error(`加载包含文件失败: ${src}`, err);
-      el.insertAdjacentHTML('afterend', `<!-- 包含失败: ${src} -->`);
     }
   }
 
-  whenReady(processAll);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      loadIncludes();
+    });
+  } else {
+    loadIncludes();
+  }
 })();
