@@ -1,6 +1,74 @@
 <div class="container-fluid bg-dark text-white p-5 text-center">
     <footer>
         <p>&copy; 2026 Morin. All rights reserved.</p>
+        <p id="site-runtime">网站已运行 0年0月0日 0小时0分0秒</p>
         <a href="https://icp.gov.moe/?keyword=20260969" target="_blank">萌ICP备20260969号</a>
     </footer>
 </div>
+<script>
+  (() => {
+    const runtimeEl = document.getElementById("site-runtime");
+
+    if (!runtimeEl) {
+      return;
+    }
+
+    const startTime = new Date(2026, 5, 8, 14, 36, 0);
+
+    function getElapsedParts(now) {
+      let cursor = new Date(startTime);
+      let years = 0;
+      let months = 0;
+
+      while (true) {
+        const next = new Date(cursor);
+        next.setFullYear(next.getFullYear() + 1);
+
+        if (next > now) {
+          break;
+        }
+
+        cursor = next;
+        years += 1;
+      }
+
+      while (true) {
+        const next = new Date(cursor);
+        next.setMonth(next.getMonth() + 1);
+
+        if (next > now) {
+          break;
+        }
+
+        cursor = next;
+        months += 1;
+      }
+
+      const diffMs = now - cursor;
+      const totalSeconds = Math.max(0, Math.floor(diffMs / 1000));
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      return { years, months, days, hours, minutes, seconds };
+    }
+
+    function renderRuntime() {
+      const now = new Date();
+
+      if (now < startTime) {
+        runtimeEl.textContent = "网站已运行 0年0月0日 0小时0分0秒";
+        return;
+      }
+
+      const { years, months, days, hours, minutes, seconds } = getElapsedParts(now);
+
+      runtimeEl.textContent =
+        `网站已运行 ${years}年${months}月${days}日 ${hours}小时${minutes}分${seconds}秒`;
+    }
+
+    renderRuntime();
+    setInterval(renderRuntime, 1000);
+  })();
+</script>
